@@ -1,0 +1,42 @@
+version: "3.8"
+services:
+  web:
+    build:
+      context: ./frontend             # Path to the frontend source code
+      dockerfile: Dockerfile.frontend  # Dockerfile for the frontend
+    depends_on:
+      - api                           # Ensure the backend API service starts first
+    ports:
+      - "3000:3000"                   # Map frontend port 3000 to host port 3000
+    networks:
+      - network-backend
+
+  api:
+    build:
+      context: ./backend              # Path to the backend source code
+      dockerfile: Dockerfile.backend   # Dockerfile for the backend
+    depends_on:
+      - mongo                         # Ensure the MongoDB service starts first
+    ports:
+      - "3001:3001"                   # Map backend port 3001 to host port 3001
+    networks:
+      - network-backend
+
+  mongo:
+    image: mongo                      # Use the official MongoDB image
+    restart: always                   # Automatically restart MongoDB if it crashes
+    volumes:
+      - mongodb_data:/data/db         # Persistent storage for MongoDB data
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: username  # Root username for MongoDB
+      MONGODB_INITDB_ROOT_PASSWORD: password  # Root password for MongoDB
+    ports:
+      - "27017:27017"                 # Uncomment this if you want to access MongoDB locally on port 27017
+    networks:
+      - network-backend
+
+networks:
+  network-backend:                    # Define the network that connects all services
+
+volumes:
+  mongodb_data:                       # Define a persistent volume for MongoDB data
